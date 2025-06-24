@@ -16,6 +16,7 @@ TARGETS=(
   "compton.desktop"
   "picom.desktop"
   "org.pulseaudio.pavucontrol.desktop"
+  "org.flameshot.Flameshot.desktop"
 )
 
 APP_DIR="/usr/share/applications"
