@@ -1,0 +1,6 @@
+* {
+  transperent:  #00000000;
+  background:  #1b1b25;
+  foreground:  #dedede;
+  accent: #3a4f77;
+}

@@ -1,0 +1,56 @@
+@import "colors.rasi"
+
+configuration {
+  font: "JetBrainsMono Nerd 14";
+  drun-display-format: "{name}";
+}
+
+window {
+ location: center;
+ anchor: center;
+ width: 500;
+ height: 500;
+ background-color: @background;
+ text-color: @foreground;
+ border:  0px;
+}
+
+mainbox {
+  children: [ inputbar, listview ];
+}
+
+listview {
+  background-color: @transperent;
+  columns: 1;
+  lines: 10px;
+  spacing: 10px;
+  layout: vertical;
+  dynamic: true;
+  scrollbar: false;
+}
+
+element {
+  orientation: horizontal;
+  children: [ element-icon, element-text ];
+  spacing: 15px;
+  padding: 10px;
+}
+
+#element selected.normal {
+    background-color: @accent;
+}
+
+element.alternate.normal {
+    background-color: @transperent;
+}
+
+element-icon {
+  size: 28px;
+}
+
+element-text {
+  vertical-align: 0.5;
+  text-color: @foreground;
+}
+
+
