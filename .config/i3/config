@@ -26,6 +26,7 @@ bindsym $mod+asciitilde exec ghostty
 bindsym $mod+Tab exec "rofi -modi windowcd,window -show windowcd"
 bindsym $mod+space exec "rofi -modi drun,run -show drun -show-icons"
 bindsym $mod+Return exec "firefox"
+bindsym Print exec flameshot gui
 
 # audio
 bindsym XF86AudioPlay exec playerctl play-pause -p spotify
@@ -33,7 +34,7 @@ bindcode 105 exec playerctl next -p spotify
 bindcode 108 exec playerctl previous -p spotify
 #===
 
-# i3 windows 
+# i3 windows
 gaps outer 0
 gaps inner 15
 
