@@ -25,9 +25,9 @@ active_ws=$(i3-msg -t get_workspaces | jq -r '.[] | select(.focused).name')
 sub=( "" "₁" "₂" "₃" "₄" "₅" "₆" "₇" "₈" "₉" "₁₀" )
 
   # Manage gap & padding values
-  separator="%{O8}"              
+  separator="%{O3}"              
   workspace_separator="%{O3}"   
-  icon_padding="%{O12}"   
+  icon_padding="%{O10}"   
         
 i3-msg -t get_tree | jq -c '
   def nodes: .nodes + .floating_nodes;
