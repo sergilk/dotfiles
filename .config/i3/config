@@ -8,7 +8,7 @@ set $mod Mod4
 # font
 #
 
-font pango:NotoSansMono SemiBold 11
+font pango:JetBrainsMono Nerd Font Propo Bold 9
 #font pango:JetBrainsMono Nerd Font SemiBold 11
 #===
 

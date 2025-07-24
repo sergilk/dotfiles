@@ -1,7 +1,7 @@
 @import "colors.rasi"
 
 configuration {
-  font: "JetBrainsMono Nerd 14";
+  font: "Noto Sans Medium 12";
   drun-display-format: "{name}";
 }
 
@@ -32,8 +32,8 @@ listview {
 element {
   orientation: horizontal;
   children: [ element-icon, element-text ];
-  spacing: 15px;
-  padding: 10px;
+  spacing: 10px;
+  padding: 5px;
 }
 
 #element selected.normal {
@@ -45,7 +45,7 @@ element.alternate.normal {
 }
 
 element-icon {
-  size: 28px;
+  size: 20px;
 }
 
 element-text {
