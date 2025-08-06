@@ -48,18 +48,11 @@ assign [class="^steam$"] → 10
 assign [class="^cs2$"] → 10
 
 for_window [class="^copyq$"] floating enable resize set 640 480
-#===
-
-#
-# custom keybindings
-#
-
-bindsym $mod+asciitilde exec ghostty
-#bindsym $mod+Tab exec "rofi -modi windowcd,window -show windowcd"
-bindsym $mod+space exec "rofi -modi drun,run -show drun -show-icons"
-bindsym $mod+Return exec "firefox"
-bindsym Print exec flameshot gui
-bindsym $mod+v exec copyq toggle
+for_window [class="Alacritty"] floating enable, \
+  resize set 1920 920, \
+  move position 0 px -18 px, \
+  focus
+bindsym F12 exec --no-startup-id ~/scripts/any_term_dropdown.sh 
 bindsym $mod+Tab workspace next
 bindsym $mod+s focus right
 #bindcode $mod+66 focus right
