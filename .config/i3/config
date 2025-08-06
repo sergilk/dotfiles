@@ -1,67 +1,70 @@
-# 
-# i3 config file (v4)
-# 
+### i3 config file (v4)
 
 set $mod Mod4
 
-#
-# font
-#
+### default apps
+set $term ghostty
+set $browser zen-browser
+set $fm thunar
+set $lock i3lock
 
-font pango:JetBrainsMono Nerd Font Propo Bold 9
-#font pango:JetBrainsMono Nerd Font SemiBold 11
-#===
+### general
+#workspace_auto_back_and_forth yes
+focus_on_window_activation focus
 
-# 
-# startup
-#
+### font
+font pango:Noto Serif Bold 8
 
-exec_always --no-startup-id i3-msg "workspace 5"
-exec_always --no-startup-id polybar
+### startup
+exec_always --no-startup-id i3-msg "workspace 3"
+exec_always --no-startup-id sh -c "killall polybar; polybar"
 exec_always --no-startup-id picom -b
 exec_always --no-startup-id easyeffects --gapplication-service
 exec_always --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 1 && copyq hide &))'
-exec_always --no-startup-id spotify
-exec_always --no-startup-id discord
-exec_always --no-startup-id telegram-desktop
-#===
+exec_always --no-startup-id flameshot
+exec_always spotify
+exec_always --no-startup-id dunst
 
-#
-# window assignment
-#
-
-# web
-assign [class="^firefox$"] → 1
-
-# dev & eng
-assign [class="^Chromium$"] → 2
+### window management 
+assign [class="^(firefox|Chromium|obsidian)$"] → 1
 assign [class="^Code$"] → 2
-assign [class="^Obsidian$"] → 2
-
-# media & text
-assign [class="^discord$"] → 5
-assign [class="^telegram-desktop$"] → 5
-assign [class="^spotify$"] → 5
-
-# games
-assign [class="^steam$"] → 10
-assign [class="^cs2$"] → 10
+assign [class="^(discord|TelegramDesktop|spotify)$"] → 3
+assign [class="^(steam|cs2|factorio)$"] → 5
 
 for_window [class="^copyq$"] floating enable resize set 640 480
+for_window [class="^Galculator$"] floating enable resize set 320 300
+for_window [class="^(cs2|factorio)$"] floating disable
 for_window [class="Alacritty"] floating enable, \
   resize set 1920 920, \
   move position 0 px -18 px, \
   focus
+
+for_window [class="Chromium"] focus
+for_window [class="obsidian"] focus
+for_window [class="steam"] focus
+for_window [class="discord"] focus
+for_window [class="TelegramDesktop"] focus
+for_window [class="Code"] focus
+for_window [class="cs2"] focus
+for_window [class="factorio"] focus
+for_window [class="spotify"] focus
+
+### custom keybindings
+bindsym $mod+space exec --no-startup-id "rofi -modi drun,run -show drun -show-icons"
+bindsym Print exec --no-startup-id flameshot gui
+bindsym $mod+v exec --no-startup-id copyq toggle
+bindsym $mod+asciitilde exec --no-startup-id $term
+bindsym $mod+Return exec $browser
+bindcode $mod+51 exec $fm
+bindsym $mod+l exec $lock -c 000000
 bindsym F12 exec --no-startup-id ~/scripts/any_term_dropdown.sh 
+
+### tab navigation
 bindsym $mod+Tab workspace next
-bindsym $mod+s focus right
-#bindcode $mod+66 focus right
-#===
+bindsym $mod+d focus right
+bindsym $mod+a focus left
 
-#
-# resize window
-#
-
+### resize window
 bindsym $mod+Ctrl+Right resize shrink width 1 px or 1 ppt
 bindsym $mod+Ctrl+Up resize grow height 1 px or 1 ppt
 bindsym $mod+Ctrl+Down resize shrink height 1 px or 1 ppt
@@ -70,39 +73,28 @@ bindsym $mod+Ctrl+Shift+Right resize shrink width 5 px or 5 ppt
 bindsym $mod+Ctrl+Shift+Up resize grow height 5 px or 5 ppt
 bindsym $mod+Ctrl+Shift+Down resize shrink height 5 px or 5 ppt
 bindsym $mod+Ctrl+Shift+Left resize grow width 5 px or 5 ppt
-#===
 
-#
-# media controls
-#
-
+### media controls
 bindsym XF86AudioPlay exec playerctl play-pause -p spotify
 bindcode 105 exec playerctl next -p spotify
 bindcode 108 exec playerctl previous -p spotify
-#===
 
-#
-# i3 window customization
-#
+### i3 window customization
+workspace_layout tabbed
+
+for_window [class=".*"] title_format "%title"
+for_window [all] title_window_icon padding 0px
+
+for_window [class=".*"] border pixel 2
+client.focused #00000000 #3a4f77 #FFFFFF #FFFFFF
+client.unfocused #1E1E2E #313244 #C3BAC6 #45475A
 
 gaps outer 0
-gaps inner 8
+gaps inner 0
 
 focus_follows_mouse no
 
-# Set default layout to tabbed
-workspace_layout tabbed
-
-for_window [class=".*"] border none
-#for_window [class=".*"] border pixel 2
-client.focused #CBA6F7 #CBA6F7 #1E1E2E #FFFFFF
-client.unfocused #1E1E2E #313244 #C3BAC6 #45475A
-#===
-
-#
-# i3 defaults
-#
-
+### i3 defaults
 # Start XDG autostart .desktop files using dex.
 exec --no-startup-id dex --autostart --environment i3
 
