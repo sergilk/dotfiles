@@ -34,23 +34,23 @@ format_time() {
     seconds=$((elapsed % 60))
 
     if [ "$elapsed" -lt 60 ]; then
-        printf "$ICON %02d\n" "$seconds"
+        printf "%02d\n" "$seconds"
     elif [ "$hours" -gt 0 ]; then
-        printf "$ICON %d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
+        printf "%d:%02d:%02d\n" "$hours" "$minutes" "$seconds"
     else
-        printf "$ICON %02d:%02d\n" "$minutes" "$seconds"
+        printf "%02d:%02d\n" "$minutes" "$seconds"
     fi
 }
 
 case "$1" in
-    left)
+    start)
         echo "running" > "$STATE_FILE"
         date +%s > "$START_FILE"
         if [ ! -f "$ELAPSED_FILE" ]; then
             echo 0 > "$ELAPSED_FILE"
         fi
         ;;
-    right)
+    pause)
         if [ -f "$STATE_FILE" ] && [ "$(cat "$STATE_FILE")" = "running" ]; then
             if [ -f "$START_FILE" ]; then
                 now=$(date +%s)
@@ -61,8 +61,8 @@ case "$1" in
             echo "paused" > "$STATE_FILE"
         fi
         ;;
-    middle)
-        echo "stopped" > "$STATE_FILE"
+    reset)
+        echo "reseted" > "$STATE_FILE"
         rm -f "$START_FILE" "$ELAPSED_FILE"
         ;;
     *)

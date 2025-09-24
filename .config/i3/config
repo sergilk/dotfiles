@@ -1,98 +1,97 @@
-### i3 config file (v4)
-
+### vars
 set $mod Mod4
-
-### default apps
-set $term ghostty
+set $terminal alacritty
 set $browser zen-browser
-set $fm thunar
-set $lock i3lock
+set $explorer Thunar
 
 ### general
-#workspace_auto_back_and_forth yes
-focus_on_window_activation focus
-
-### font
 font pango:Noto Serif Bold 8
+focus_follows_mouse no
+bindsym button1 nop
+gaps outer 3
+gaps inner 5
 
 ### startup
-exec_always --no-startup-id feh --bg-fill ~/dotfiles/wallpapers/default.png
+exec --no-startup-id xrandr --output HDMI-0 --mode "1920x1080" --rate 144 --primary
+exec --no-startup-id xrdb -merge ~/.Xresources
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id gnome-keyring-daemon --start --components=secrets
+
+exec_always --no-startup-id setxkbmap -layout us,ua -option grp:alt_shift_toggle
+exec_always --no-startup-id xinput set-prop "ASUS ROG Gladius II Origin" "libinput Accel Profile Enabled" 0 1 0
+exec_always --no-startup-id sh -c "killall dunst; dunst"
 exec_always --no-startup-id sh -c "killall polybar; polybar"
-exec_always --no-startup-id picom -b
-exec_always --no-startup-id easyeffects --gapplication-service
-exec_always --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 1 && copyq hide &))'
-exec_always --no-startup-id flameshot
-exec_always spotify
-exec_always --no-startup-id dunst
+exec_always --no-startup-id sh -c "killall picom; picom -b"
 
-### window management 
-assign [class="^(firefox|Chromium|obsidian)$"] → 1
-assign [class="^Code$"] → 2
-assign [class="^(discord|TelegramDesktop|spotify)$"] → 3
-assign [class="^(steam|cs2|factorio)$"] → 5
+exec --no-startup-id ~/scripts/autotiling.py -w 1 2 5 6 7 8 9 10
+exec --no-startup-id nvidia-settings -a "DigitalVibrance=800"
+exec --no-startup-id feh --bg-fill ~/wallpapers/default.png
+exec --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 1 && copyq hide &))'
+exec --no-startup-id flameshot
 
-for_window [class="^copyq$"] floating enable resize set 640 480
-for_window [class="^Galculator$"] floating enable resize set 320 300
-for_window [class="^(cs2|factorio)$"] floating disable
-for_window [class="Alacritty"] floating enable, \
-  resize set 1920 920, \
-  move position 0 px -18 px, \
-  focus
+### focus
+for_window [urgent="latest"] focus
+no_focus [window_role="^(pop-up|notification|utility)$"]
 
-for_window [class="Chromium"] focus
-for_window [class="obsidian"] focus
-for_window [class="steam"] focus
-for_window [class="discord"] focus
-for_window [class="TelegramDesktop"] focus
-for_window [class="Code"] focus
-for_window [class="cs2"] focus
-for_window [class="factorio"] focus
-for_window [class="spotify"] focus
+### styling
+for_window [all] title_format "%title"
+for_window [all] title_window_icon padding 0px
+for_window [all] border pixel 2
+hide_edge_borders smart
 
-### custom keybindings
-bindsym $mod+space exec --no-startup-id "rofi -modi drun,run -show drun -show-icons"
+                        #border   bg        text      indicator child_border
+client.focused          #232323   #232323   #ffffff   #4aa5f0   #4aa5f0
+client.unfocused        #000000   #000000   #444444   #111111   #111111
+client.focused_inactive #1c1c1c   #232323   #444444   #111111   #111111
+client.urgent           #ff0000   #ff0000   #ffffff   #ff0000   #ff0000
+client.placeholder      #000000   #000000   #ffffff   #000000   #000000
+client.background       #4aa5f0
+
+### window management
+assign [class="^(firefox|Chromium|obsidian|zen)$"] → 1
+assign [class="Code"] → 2
+assign [class="^(discord|TelegramDesktop|Spotify)$"] → 3
+assign [class="^(steam|cs2|factorio|steam_app_292030)$"] → 4
+
+for_window [workspace=3] layout tabbed
+for_window [workspace=4] layout tabbed
+
+for_window [class="^(cs2|factorio|steam_app_292030)$"] floating disable, focus
+for_window [class="^(pavucontrol)$"] floating enable
+for_window [title="^(Preferences|Image Lounge)$"] floating enable, move position center
+for_window [class="copyq"] floating enable, resize set 560 420, move position 680 px 660 px
+
+### launchers
+bindsym $mod+space exec --no-startup-id j4-dmenu-desktop --usage-log=log --i3-ipc --dmenu "dmenu -i -b -fn 'Noto Sans Mono-10:style=SemiBold' -nb '#000000' -nf '#444444' -sf '#fefefe' -sb '#1a1a1a'"
 bindsym Print exec --no-startup-id flameshot gui
 bindsym $mod+v exec --no-startup-id copyq toggle
-bindsym $mod+asciitilde exec --no-startup-id $term
+bindsym $mod+asciitilde exec --no-startup-id $terminal --class terminal-normal
 bindsym $mod+Return exec $browser
-bindcode $mod+51 exec $fm
-bindsym $mod+l exec $lock -c 000000
-bindsym F12 exec --no-startup-id ~/scripts/any_term_dropdown.sh 
+bindsym $mod+l exec i3lock -c 000000
+bindsym F11 exec dunstctl history-pop
+bindsym F10 exec feh --no-startup-id --recursive --bg-fill --randomize ~/vault/wallpapers/*
+bindsym F9 [urgent=latest] focus
+bindsym $mod+plus scratchpad show
+bindsym $mod+minus move scratchpad
+bindsym $mod+Tab workspace back_and_forth
 
-### tab navigation
-bindsym $mod+Tab workspace next
+### features
+# toggling app visibility with scratchpad
+bindsym F12 exec --no-startup-id sh -c 'xdotool search --class terminal-dropdown && i3-msg "[class="terminal-dropdown"] scratchpad show" || $terminal --class terminal-dropdown -e tmux'
+bindcode $mod+51 exec --no-startup-id sh -c 'xdotool search --class $explorer && i3-msg "[class="$explorer"] scratchpad show" || $explorer'
+for_window [class="terminal-dropdown"] floating enable, resize set 1924 938, move position -2 px -2 px, border none, focus, move scratchpad
+for_window [class=$explorer] floating enable, focus, move scratchpad, scratchpad show
+
+### navigation
 bindsym $mod+d focus right
 bindsym $mod+a focus left
-
-### resize window
-bindsym $mod+Ctrl+Right resize shrink width 1 px or 1 ppt
-bindsym $mod+Ctrl+Up resize grow height 1 px or 1 ppt
-bindsym $mod+Ctrl+Down resize shrink height 1 px or 1 ppt
-bindsym $mod+Ctrl+Left resize grow width 1 px or 1 ppt
-bindsym $mod+Ctrl+Shift+Right resize shrink width 5 px or 5 ppt
-bindsym $mod+Ctrl+Shift+Up resize grow height 5 px or 5 ppt
-bindsym $mod+Ctrl+Shift+Down resize shrink height 5 px or 5 ppt
-bindsym $mod+Ctrl+Shift+Left resize grow width 5 px or 5 ppt
+bindsym $mod+Shift+d workspace next
+bindsym $mod+Shift+a workspace prev
 
 ### media controls
 bindsym XF86AudioPlay exec playerctl play-pause -p spotify
 bindcode 105 exec playerctl next -p spotify
 bindcode 108 exec playerctl previous -p spotify
-
-### i3 window customization
-workspace_layout tabbed
-
-for_window [class=".*"] title_format "%title"
-for_window [all] title_window_icon padding 0px
-
-for_window [class=".*"] border pixel 2
-client.focused #00000000 #3a4f77 #FFFFFF #FFFFFF
-client.unfocused #1E1E2E #313244 #C3BAC6 #45475A
-
-gaps outer 0
-gaps inner 0
-
-focus_follows_mouse no
 
 ### i3 defaults
 # Start XDG autostart .desktop files using dex.
@@ -132,7 +131,7 @@ bindsym $mod+Shift+Right move right
 bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-#bindsym $mod+s layout stacking
+bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
@@ -180,4 +179,30 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
-#===
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym j resize shrink width 10 px or 10 ppt
+        bindsym k resize grow height 10 px or 10 ppt
+        bindsym l resize shrink height 10 px or 10 ppt
+        bindsym semicolon resize grow width 10 px or 10 ppt
+
+        # same bindings, but for the arrow keys
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape or $mod+r
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym $mod+r mode "default"
+}
+
+bindsym $mod+r exec --no-startup-id sh -c 'i3-msg mode "resize" && notify-send -u low "resize mode"'
