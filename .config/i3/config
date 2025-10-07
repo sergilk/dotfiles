@@ -24,7 +24,7 @@ exec_always --no-startup-id sh -c "killall polybar; polybar"
 exec_always --no-startup-id sh -c "killall picom; picom -b"
 
 exec --no-startup-id ~/scripts/autotiling.py -w 1 2 5 6 7 8 9 10
-exec --no-startup-id nvidia-settings -a "DigitalVibrance=800"
+exec --no-startup-id nvidia-settings -a "DigitalVibrance=500"
 exec --no-startup-id feh --bg-fill ~/wallpapers/default.png
 exec --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 1 && copyq hide &))'
 exec --no-startup-id flameshot
@@ -79,7 +79,7 @@ bindsym $mod+Tab workspace back_and_forth
 # toggling app visibility with scratchpad
 bindsym F12 exec --no-startup-id sh -c 'xdotool search --class terminal-dropdown && i3-msg "[class="terminal-dropdown"] scratchpad show" || $terminal --class terminal-dropdown -e tmux'
 bindcode $mod+51 exec --no-startup-id sh -c 'xdotool search --class $explorer && i3-msg "[class="$explorer"] scratchpad show" || $explorer'
-for_window [class="terminal-dropdown"] floating enable, resize set 1924 938, move position -2 px -2 px, border none, focus, move scratchpad
+for_window [class="terminal-dropdown"] floating enable, resize set 1924 938, move position -2 px -2 px, border none, focus, move scratchpad, scratchpad show
 for_window [class=$explorer] floating enable, focus, move scratchpad, scratchpad show
 
 ### navigation
