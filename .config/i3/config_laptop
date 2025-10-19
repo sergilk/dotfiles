@@ -1,0 +1,208 @@
+### vars
+set $mod Mod4
+set $terminal alacritty
+set $browser zen-browser
+set $explorer Thunar
+
+### general
+font pango:Noto Serif Bold 8
+focus_follows_mouse no
+bindsym button1 nop
+gaps outer 3
+gaps inner 5
+
+### startup
+exec --no-startup-id xrandr --output HDMI-0 --mode "1920x1080" --rate 144 --primary
+exec --no-startup-id xrdb -merge ~/.Xresources
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id gnome-keyring-daemon --start --components=secrets
+
+exec_always --no-startup-id setxkbmap -layout us,ua -option grp:alt_shift_toggle
+exec_always --no-startup-id xinput set-prop "ASUS ROG Gladius II Origin" "libinput Accel Profile Enabled" 0 1 0
+exec_always --no-startup-id sh -c "killall dunst; dunst"
+exec_always --no-startup-id sh -c "killall polybar; polybar"
+exec_always --no-startup-id sh -c "killall picom; picom -b"
+
+exec --no-startup-id ~/scripts/autotiling.py -w 1 2 5 6 7 8 9 10
+exec --no-startup-id nvidia-settings -a "DigitalVibrance=500"
+exec --no-startup-id feh --bg-fill ~/wallpapers/default.png
+exec --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 1 && copyq hide &))'
+exec --no-startup-id flameshot
+
+### focus
+for_window [urgent="latest"] focus
+no_focus [window_role="^(pop-up|notification|utility)$"]
+
+### styling
+for_window [all] title_format "%title"
+for_window [all] title_window_icon padding 0px
+for_window [all] border pixel 2
+hide_edge_borders smart
+
+                        #border   bg        text      indicator child_border
+client.focused          #232323   #232323   #ffffff   #4aa5f0   #4aa5f0
+client.unfocused        #000000   #000000   #444444   #111111   #111111
+client.focused_inactive #1c1c1c   #232323   #444444   #111111   #111111
+client.urgent           #ff0000   #ff0000   #ffffff   #ff0000   #ff0000
+client.placeholder      #000000   #000000   #ffffff   #000000   #000000
+client.background       #4aa5f0
+
+### window management
+assign [class="^(firefox|Chromium|obsidian|zen)$"] → 1
+assign [class="Code"] → 2
+assign [class="^(discord|TelegramDesktop|Spotify)$"] → 3
+assign [class="^(steam|cs2|factorio|steam_app_292030)$"] → 4
+
+for_window [workspace=3] layout tabbed
+for_window [workspace=4] layout tabbed
+
+for_window [class="^(cs2|factorio|steam_app_292030)$"] floating disable, focus
+for_window [class="^(pavucontrol)$"] floating enable
+for_window [title="^(Preferences|Image Lounge)$"] floating enable, move position center
+for_window [class="copyq"] floating enable, resize set 560 420, move position 680 px 660 px, focus
+
+### launchers
+bindsym $mod+space exec --no-startup-id j4-dmenu-desktop --usage-log=log --i3-ipc --dmenu "dmenu -i -b -fn 'Noto Sans Mono-10:style=SemiBold' -nb '#000000' -nf '#444444' -sf '#fefefe' -sb '#1a1a1a'"
+bindsym Print exec --no-startup-id flameshot gui
+bindsym $mod+v exec --no-startup-id copyq toggle
+bindsym $mod+asciitilde exec --no-startup-id $terminal --class terminal-normal
+bindsym $mod+Return exec $browser
+bindsym $mod+l exec i3lock -c 000000
+bindsym F11 exec dunstctl history-pop
+bindsym F10 exec feh --no-startup-id --recursive --bg-fill --randomize ~/vault/wallpapers/*
+bindsym $mod+plus scratchpad show
+bindsym $mod+minus move scratchpad
+bindsym $mod+Tab workspace back_and_forth
+bindsym F9 exec --no-startup-id gpick -p
+
+### features
+# toggling app visibility with scratchpad
+bindsym F12 exec --no-startup-id sh -c 'xdotool search --class terminal-dropdown && i3-msg "[class="terminal-dropdown"] scratchpad show" || $terminal --class terminal-dropdown -e tmux'
+bindcode $mod+51 exec --no-startup-id sh -c 'xdotool search --class $explorer && i3-msg "[class="$explorer"] scratchpad show" || $explorer'
+for_window [class="terminal-dropdown"] floating enable, resize set 1926 938, move position -3 px -3 px, border none, move scratchpad, scratchpad show, focus
+for_window [class=$explorer] floating enable, move scratchpad, scratchpad show, focus
+
+### navigation
+bindsym $mod+d focus right
+bindsym $mod+a focus left
+bindsym $mod+Shift+d workspace next
+bindsym $mod+Shift+a workspace prev
+
+### media controls
+bindsym XF86AudioPlay exec playerctl play-pause -p spotify
+bindcode 105 exec playerctl next -p spotify
+bindcode 108 exec playerctl previous -p spotify
+
+### i3 defaults
+# Start XDG autostart .desktop files using dex.
+exec --no-startup-id dex --autostart --environment i3
+
+# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
+# screen before suspend. Use loginctl lock-session to lock your screen.
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+
+# NetworkManager is the most popular way to manage wireless networks on Linux,
+# and nm-applet is a desktop environment-independent system tray GUI for it.
+exec --no-startup-id nm-applet
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# move tiling windows via drag & drop by left-clicking into the title bar,
+# or left-clicking anywhere into the window while holding the floating modifier.
+tiling_drag modifier titlebar
+
+# kill focused window
+bindsym $mod+Shift+q kill
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# split in horizontal orientation
+#bindsym $mod+h split h
+
+# split in vertical orientation
+#bindsym $mod+v split v
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# Define names for default workspaces for which we configure key bindings later on.
+# We use variables to avoid repeating the names in multiple places.
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+# switch to workspace
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+# reload the configuration file
+bindsym $mod+Shift+c reload
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym j resize shrink width 10 px or 10 ppt
+        bindsym k resize grow height 10 px or 10 ppt
+        bindsym l resize shrink height 10 px or 10 ppt
+        bindsym semicolon resize grow width 10 px or 10 ppt
+
+        # same bindings, but for the arrow keys
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape or $mod+r
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym $mod+r mode "default"
+}
+
+bindsym $mod+r exec --no-startup-id sh -c 'i3-msg mode "resize" && notify-send -u low "resize mode"'
