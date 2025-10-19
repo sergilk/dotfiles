@@ -15,4 +15,5 @@ alias mhdd="sudo mount /dev/sdb1 /mnt/hdd"
 alias uhdd="sudo umount /mnt/hdd"
 alias code="code --password-store=gnome-libsecret"
 alias rm="trash -v"
-
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
