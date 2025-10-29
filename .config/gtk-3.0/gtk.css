@@ -1,0 +1,6 @@
+ /* Row and column Spacing for the icon view cab be adusted since Thunar 1.8.0 */
+ 
+ * {
+   -ThunarAbstractIconView-row-spacing: 0;
+   -ThunarAbstractIconView-column-spacing: 0;
+ }

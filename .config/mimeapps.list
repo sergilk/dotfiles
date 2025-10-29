@@ -1,0 +1,37 @@
+[Default Applications]
+video/webm=mpv.desktop;
+video/mp4=mpv.desktop;
+video/x-matroska=mpv.desktop;
+video/quicktime=mpv.desktop;
+video/vnd.avi=mpv.desktop;
+image/png=feh.desktop;
+image/jpeg=feh.desktop;
+image/webp=feh.desktop;
+image/gif=mpv.desktop;
+application/x-zerosize=nvim.desktop
+text/plain=nvim.desktop
+application/octet-stream=nvim.desktop
+image/svg+xml=feh.desktop
+application/x-7z-compressed=xarchiver.desktop
+application/zip=xarchiver.desktop
+application/vnd.rar=xarchiver.desktop
+application/x-tar=xarchiver.desktop
+
+[Added Associations]
+video/webm=mpv.desktop;
+video/mp4=mpv.desktop;
+video/x-matroska=mpv.desktop;
+video/quicktime=mpv.desktop;
+video/vnd.avi=mpv.desktop;
+image/png=feh.desktop;
+image/jpeg=feh.desktop;
+image/webp=feh.desktop;
+image/gif=mpv.desktop;
+application/x-zerosize=nvim.desktop;
+text/plain=nvim.desktop;
+application/octet-stream=nvim.desktop;
+image/svg+xml=feh.desktop;
+application/x-7z-compressed=xarchiver.desktop;
+application/zip=xarchiver.desktop;
+application/vnd.rar=xarchiver.desktop;
+application/x-tar=xarchiver.desktop;
