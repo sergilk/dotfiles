@@ -8,8 +8,8 @@ set $explorer Thunar
 font pango:Noto Serif Bold 8
 focus_follows_mouse no
 bindsym button1 nop
-gaps outer 3
-gaps inner 5
+gaps outer 0
+gaps inner 0
 
 ### startup
 exec --no-startup-id xrandr --output HDMI-0 --mode "1920x1080" --rate 144 --primary
@@ -18,51 +18,49 @@ exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id gnome-keyring-daemon --start --components=secrets
 
 exec_always --no-startup-id setxkbmap -layout us,ua -option grp:alt_shift_toggle
-exec_always --no-startup-id xinput set-prop "ASUS ROG Gladius II Origin" "libinput Accel Profile Enabled" 0 1 0
 exec_always --no-startup-id sh -c "killall dunst; dunst"
 exec_always --no-startup-id sh -c "killall polybar; polybar"
 exec_always --no-startup-id sh -c "killall picom; picom -b"
 
-exec --no-startup-id ~/scripts/autotiling.py -w 1 2 5 6 7 8 9 10
-exec --no-startup-id nvidia-settings -a "DigitalVibrance=500"
-exec --no-startup-id feh --bg-fill ~/wallpapers/default.png
+exec --no-startup-id nvidia-settings -a "DigitalVibrance=200"
+exec --no-startup-id feh --bg-fill ~/dotfiles/default.png
 exec --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 1 && copyq hide &))'
 exec --no-startup-id flameshot
 
 ### focus
 for_window [urgent="latest"] focus
-no_focus [window_role="^(pop-up|notification|utility)$"]
+no_focus [class="Dunst"]
 
 ### styling
-for_window [all] title_format "%title"
 for_window [all] title_window_icon padding 0px
-for_window [all] border pixel 2
-hide_edge_borders smart
+for_window [all] border normal 1
 
                         #border   bg        text      indicator child_border
-client.focused          #232323   #232323   #ffffff   #4aa5f0   #4aa5f0
-client.unfocused        #000000   #000000   #444444   #111111   #111111
-client.focused_inactive #1c1c1c   #232323   #444444   #111111   #111111
-client.urgent           #ff0000   #ff0000   #ffffff   #ff0000   #ff0000
-client.placeholder      #000000   #000000   #ffffff   #000000   #000000
-client.background       #4aa5f0
+#client.focused
+#client.unfocused
+#client.focused_inactive
+#client.urgent
+#client.placeholder
+#client.background
 
 ### window management
-assign [class="^(firefox|Chromium|obsidian|zen)$"] → 1
+assign [window_role="browser"] → 1
 assign [class="Code"] → 2
 assign [class="^(discord|TelegramDesktop|Spotify)$"] → 3
-assign [class="^(steam|cs2|factorio|steam_app_292030)$"] → 4
+assign [class="^(steam|cs2|factorio|steam_app_.*)$"] → 4
 
 for_window [workspace=3] layout tabbed
 for_window [workspace=4] layout tabbed
 
-for_window [class="^(cs2|factorio|steam_app_292030)$"] floating disable, focus
+for_window [window_role="^(pop-up|dialog|menu|GtkFileChooserDialog)$"] floating enable
+for_window [title="Preferences"] floating enable
+for_window [class="^(cs2|factorio|steam_app_.*)$"] floating disable
 for_window [class="^(pavucontrol)$"] floating enable
 for_window [title="^(Preferences|Image Lounge)$"] floating enable, move position center
 for_window [class="copyq"] floating enable, resize set 560 420, move position 680 px 660 px, focus
 
 ### launchers
-bindsym $mod+space exec --no-startup-id j4-dmenu-desktop --usage-log=log --i3-ipc --dmenu "dmenu -i -b -fn 'Noto Sans Mono-10:style=SemiBold' -nb '#000000' -nf '#444444' -sf '#fefefe' -sb '#1a1a1a'"
+bindsym $mod+space exec --no-startup-id j4-dmenu-desktop --usage-log=log --i3-ipc --dmenu "dmenu -i -b -fn 'Noto Sans Mono-10:style=SemiBold' -nb '#000000' -nf '#ffffff' -sf '#000000' -sb '#ffffff'"
 bindsym Print exec --no-startup-id flameshot gui
 bindsym $mod+v exec --no-startup-id copyq toggle
 bindsym $mod+asciitilde exec --no-startup-id $terminal --class terminal-normal
@@ -70,8 +68,6 @@ bindsym $mod+Return exec $browser
 bindsym $mod+l exec i3lock -c 000000
 bindsym F11 exec dunstctl history-pop
 bindsym F10 exec feh --no-startup-id --recursive --bg-fill --randomize ~/vault/wallpapers/*
-bindsym $mod+plus scratchpad show
-bindsym $mod+minus move scratchpad
 bindsym $mod+Tab workspace back_and_forth
 bindsym F9 exec --no-startup-id gpick -p
 
@@ -79,7 +75,7 @@ bindsym F9 exec --no-startup-id gpick -p
 # toggling app visibility with scratchpad
 bindsym F12 exec --no-startup-id sh -c 'xdotool search --class terminal-dropdown && i3-msg "[class="terminal-dropdown"] scratchpad show" || $terminal --class terminal-dropdown -e tmux'
 bindcode $mod+51 exec --no-startup-id sh -c 'xdotool search --class $explorer && i3-msg "[class="$explorer"] scratchpad show" || $explorer'
-for_window [class="terminal-dropdown"] floating enable, resize set 1926 938, move position -3 px -3 px, border none, move scratchpad, scratchpad show, focus
+for_window [class="terminal-dropdown"] floating enable, border none, resize set 1920 938, move position 0 px 0 px, move scratchpad, scratchpad show, focus
 for_window [class=$explorer] floating enable, move scratchpad, scratchpad show, focus
 
 ### navigation

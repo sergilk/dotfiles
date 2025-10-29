@@ -1,34 +1,23 @@
 #!/bin/bash
 
+platform="$1" # laptop|desktop
+if [[ $platform != "desktop" && $platform != "laptop" ]]; then
+    echo -e "###\nTo continue, pass the correct device platform: (desktop|laptop).\nUsage: script platform\n###"
+    exit 1
+fi
+
 exec > >(tee "$HOME/inst_log.txt") 2>&1
 set -e
 
-dotfiles_dir="$HOME/dotfiles"
-core_packages=("base-devel" "mesa" "libgnome-keyring" "gnome-keyring" "linux-headers"
-"libsecret" "fuse2" "python-pyfuse3" "python-docutils" "jq" "wget" "qt5ct" "python-pip"
-"python-dbus" "polkit" "dbus" "xdg-utils" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra"
-"noto-fonts-cjk" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" "ttf-nerd-fonts-symbols"
-"ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-alsa" "pipewire-pulse" "pipewire-jack")
-i3_packages=("xorg i3-wm i3lock ly")
-user_pacman=("feh" "dmenu" "chromium" "mpv" "j4-dmenu-desktop" "discord"
-"polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux" "neovim" "alacritty"
-"wipe" "trash-cli" "yt-dlp" "playerctl" "ffmpeg" "pavucontrol" "picom" "thunar"
-"thunar-archive-plugin" "file-roller" "thunar-media-tags-plugin" "thunar-volman"
-"tumbler" "ffmpegthumbnailer" "xfce4-panel" "gvfs" "udisks2" "polkit-gnome" "glib2"
-"desktop-file-utils" "webp-pixbuf-loader" "libwebp" "gdk-pixbuf2")
-user_aur=("zen-browser-bin" "visual-studio-code-bin" "flameshot-git" "snapd")
-
-# logger colors
-INFO='\e[34m'
-SUCCESS='\e[32m'
-WARN='\e[33m'
-ERROR='\e[31m'
-RESET='\e[0m'
-
 log() {
+    INFO='\e[34m'
+    SUCCESS='\e[32m'
+    WARN='\e[33m'
+    ERROR='\e[31m'
+    RESET='\e[0m'
+
     local type="$1"
     local msg="$2"
-
     case $type in
         info)    echo -e "${INFO}[INFO]${RESET} $msg" ;;
         success) echo -e "${SUCCESS}[SUCCESS]${RESET} $msg" ;;
@@ -41,11 +30,31 @@ log() {
 # catch an error when exiting the script (e.g by clicking ctrl+c)
 trap 'log error "Script canceled"; exit 130' SIGINT
 
-# configuring pacman.conf
-sudo sed -i "s|^#Color|Color|" /etc/pacman.conf
-sudo sed -i "s|^#VerbosePkgLists|VerbosePkgLists|" /etc/pacman.conf
-sudo sed -i "s|^#\[\(multilib\)\]$|[\1]|" /etc/pacman.conf
-sudo sed -i "/^\[multilib\]$/{n;s|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/mirrorlist|;}" /etc/pacman.conf
+dotfiles_dir="$HOME/dotfiles"
+core_packages=("base-devel" "libgnome-keyring" "gnome-keyring"
+"linux-headers" "libsecret" "fuse2" "python-pyfuse3" "python-docutils" "jq" "wget" "qt5ct" "python-pip"
+"python-dbus" "polkit" "dbus" "xdg-utils" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra"
+"noto-fonts-cjk" "ttf-jetbrains-mono" "ttf-jetbrains-mono-nerd" "ttf-nerd-fonts-symbols"
+"ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-alsa" "pipewire-pulse" "pipewire-jack"
+"gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad" "gst-plugins-ugly" "gst-plugins-base"
+"xarchiver" "unrar" "unzip" "7zip" "tar" "gzip" "zip" "bluez" "bluez-tools" "bluez-utils" "xdg-desktop-portal" "xdg-desktop-portal-gtk")
+i3_packages=("xorg i3-wm i3lock ly")
+user_pacman=("feh" "nvm" "dmenu" "chromium" "mpv" "j4-dmenu-desktop" "discord"
+"polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux" "neovim" "alacritty"
+"wipe" "trash-cli" "yt-dlp" "playerctl" "ffmpeg" "pavucontrol" "picom" "thunar"
+"thunar-archive-plugin" "file-roller" "thunar-media-tags-plugin" "thunar-volman"
+"tumbler" "ffmpegthumbnailer" "xfce4-panel" "gvfs" "udisks2" "polkit-gnome" "glib2"
+"desktop-file-utils" "webp-pixbuf-loader" "libwebp" "gdk-pixbuf2" "gpick" "flameshot")
+user_aur=("zen-browser-bin" "visual-studio-code-bin" "snapd" "bluetuith" "localsend-bin")
+
+laptop_core=("cbatticon" "brightnessctl" "mesa" "xf86-video-amdgpu" "vulkan-radeon" "lib32-mesa")
+desktop_core=("nvidia" "nvidia-utils" "nvidia-settings")
+if [[ "$platform" == "laptop" ]]; then
+    core_packages+=("${laptop_core[@]}")
+fi
+if [[ "$platform" == "desktop" ]]; then
+    core_packages+=("${desktop_core[@]}")
+fi
 
 update_system() {
     sudo pacman -Sy
@@ -82,11 +91,11 @@ update_system() {
         git clone --branch yay-bin --single-branch https://github.com/archlinux/aur.git yay-bin
         ) &&
         cd yay-bin &&
-        makepkg -si --noconfirm &&
-        log success "Yay installed!" || {
+        makepkg -si --noconfirm || {
             log error "Failed to install yay, exiting..."
             return 1
-        }
+        } ||
+        log success "Yay installed!"
    else
         log info "Yay already installed, skipping..."
    fi
@@ -113,9 +122,9 @@ installing_hook() {
     esac
 
     for pkg in "${pkg_list[@]}"; do
-        if ! $check_cmd $pkg &>/dev/null; then
+        if ! $check_cmd "$pkg" &>/dev/null; then
             log info "Installing [$pkg]..."
-            if ! $inst_cmd $pkg --noconfirm; then
+            if ! $inst_cmd "$pkg" --noconfirm; then
                 log error "Installing [$pkg] canceled or failed"
                 return 1
             fi
@@ -126,7 +135,7 @@ installing_hook() {
 }
 
 install_core_packages() {
-     if [[ -n $core_packages ]]; then
+     if [[ "${#core_packages[@]}" -gt 0 ]]; then
         log info "Installing core packages..."
         if ! installing_hook pacman "${core_packages[@]}"; then
             log error "Core packages installation failed or canceled, exiting..."
@@ -136,7 +145,7 @@ install_core_packages() {
 }
 
 install_user_packages() {
-    if [[ -n $user_pacman ]]; then
+    if [[ "${#user_pacman[@]}" -gt 0 ]]; then
         log info "Installing user packages via pacman..."
         if installing_hook pacman "${user_pacman[@]}"; then
             log success "Pacman packages installed!"
@@ -147,7 +156,7 @@ install_user_packages() {
     fi
 
     if type yay &>/dev/null; then
-        if [[ -n $user_aur ]]; then
+        if [[ "${#user_aur[@]}" -gt 0 ]]; then
             log info "Installing user packages via yay..."
             if installing_hook aur "${user_aur[@]}"; then
                 log success "Aur packages installed!"
@@ -180,33 +189,53 @@ install_system() {
         systemctl disable getty@tty2.service
         systemctl --user enable pipewire pipewire-pulse
         systemctl --user start pipewire pipewire-pulse
+        sudo ln -s -v /var/lib/snapd/snap /snap
         sudo systemctl enable --now snapd.socket
         sudo systemctl enable --now snapd.apparmor.service
+        systemctl enable bluetooth.service
+        systemctl start bluetooth.service
+
+        log info "Configuring pacman.conf..."
+        sudo sed -i "s|^#Color|Color|" /etc/pacman.conf
+        sudo sed -i "s|^#VerbosePkgLists|VerbosePkgLists|" /etc/pacman.conf
+        sudo sed -i "s|^#\[\(multilib\)\]$|[\1]|" /etc/pacman.conf
+        sudo sed -i "/^\[multilib\]$/{n;s|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/mirrorlist|;}" /etc/pacman.conf
+
+        log info "Disabling mouse acceleration..."
+        sudo tee /etc/X11/xorg.conf.d/40-libinput.conf > /dev/null <<EOF
+        Section "InputClass"
+        Identifier "libinput pointer catchall"
+        MatchIsPointer "on"
+        MatchDevicePath "/dev/input/event*"
+        Driver "libinput"
+        Option "AccelProfile" "flat"
+        EndSection
+EOF
     fi
 }
 
 create_symlinks() {
-    if [[ ! -d $dotfiles_dir ]]; then
-        log info "dotfiles folder not found, exiting..."
-        return 1
-    fi
+  local src="$1" dest="$2"
+  [[ ! -d $dest ]] && mkdir -p "$dest"
 
-    if [[ ! -d "$HOME"/.config ]]; then
-        log info ".config folder not found, creating..."
-        mkdir "$HOME"/.config
-    fi
+  local exclude_list=(".gitignore" "install.sh" "wallpaper.png")
 
-    for item in "$dotfiles_dir"/.config/*; do
-        echo -e "$(ln -s -v $item "$HOME/.config")"
-    done
+  for entry in "$src"/*; do
+    [[ ! -e $entry ]] && continue
+    local base=$(basename "$entry")
+    local clean=${base/_${platform}/}
+    local target_path="$dest/$clean"
 
-    if [[ -d $dotfiles_dir ]]; then
-        ln -s -v "$dotfiles_dir/scripts" $HOME
-        ln -s -v "$dotfiles_dir/wallpapers" $HOME
-        ln -s -v "$dotfiles_dir/.Xresources" $HOME
-        ln -s -v "$dotfiles_dir/.xprofile" $HOME
-        ln -sf -v "$dotfiles_dir/.bashrc" $HOME
+    [[ $base == "${exclude_list[*]}" ]] && continue
+    [[ $platform == "desktop" && $base == *_laptop* ]] && continue
+    [[ $platform == "laptop" && $base == *_desktop* ]] && continue
+
+    if [[ -d $entry ]]; then
+        create_symlinks "$entry" "$target_path"
+    else
+        ln -sf -v "$(realpath "$entry")" "$target_path"
     fi
+  done
 }
 
 exe() {
@@ -224,7 +253,7 @@ exe install_core_packages
 exe install_pkg_helpers
 exe install_user_packages
 exe install_system
-exe create_symlinks
+exe create_symlinks "$dotfiles_dir" "$HOME"
 
-read -p "reboot? (y/n) " input
+read -r -p "reboot? (y/n) " input
 [[ $input = "y" ]] && reboot || echo ":("
