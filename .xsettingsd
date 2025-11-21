@@ -1,0 +1,8 @@
+Xft/Antialias 1
+Xft/HintStyle "hintfull"
+Xft/Hinting 1
+Xft/RGBA "rgb"
+Xft/lcdfilter "lcddefault"
+Xft/DPI 135168
+Gtk/FontName "Noto Sans 10"
+Net/ThemeName "adw-gtk3-dark"

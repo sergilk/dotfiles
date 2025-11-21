@@ -1,0 +1,9 @@
+[urgency_low]
+background = "{background}"
+foreground = "{foreground}"
+[urgency_normal]
+background = "{background}"
+foreground = "{foreground}"
+[urgency_critical]
+background = "{background}"
+foreground = "{foreground}"

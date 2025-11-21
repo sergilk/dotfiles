@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+connectedMonitors=$(xrandr --listactivemonitors | grep -v "Monitors:" | wc -l)
+laptop_dpi="135168" # 132
+desktop_dpi="98304" # 96
+
+adjust_dpi() {
+  local dpi="$1"
+  local tray_size=$([[ "$dpi" == "$desktop_dpi" ]] && echo "66%" || echo "80%")
+
+  sed -i --follow-symlinks "s|^Xft.dpi:.*|Xft.dpi: $((dpi / 1024))|" "$HOME/.Xresources"
+  sed -i --follow-symlinks "s|^Xft/DPI.*|Xft/DPI $dpi|" "$HOME/.xsettingsd"
+  sed -i --follow-symlinks "s|^dpi-x.*|dpi-x = $(($dpi / 1024))|" "$HOME/.config/polybar/config.ini"
+  sed -i --follow-symlinks "s|^dpi-y.*|dpi-y = $(($dpi / 1024))|" "$HOME/.config/polybar/config.ini"
+  sed -i --follow-symlinks "s|^tray-size.*|tray-size = "$tray_size"|" "$HOME/.config/polybar/config.ini"
+}
+
+reload() {
+    killall -HUP xsettingsd
+    xrdb -merge $HOME/.Xresources
+
+    # always last
+    i3-msg restart
+}
+
+if [[ $connectedMonitors -le 1 ]]; then
+    brightnessctl -d amdgpu_bl1 s $(brightnessctl i | awk '/Max brightness:/ {print $3}')
+    xrandr --auto
+
+    adjust_dpi $laptop_dpi
+    reload
+else
+    brightnessctl -d amdgpu_bl1 s 0
+    xrandr --output eDP --off
+
+    adjust_dpi $desktop_dpi
+    reload
+fi
