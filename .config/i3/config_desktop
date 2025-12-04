@@ -9,7 +9,7 @@ exec --no-startup-id xrandr --output HDMI-0 --mode "1920x1080" --rate 144
 exec --no-startup-id xrdb -merge $HOME/.Xresources
 exec --no-startup-id xsettingsd
 exec --no-startup-id nvidia-settings -a "DigitalVibrance=200"
-exec --no-startup-id wal --theme sexy-trim-yer-beard -o $HOME/.config/wal/post-run.sh
+exec --no-startup-id wal --theme sexy-trim-yer-beard -o $XDG_CONFIG_HOME/wal/post-run.sh
 exec --no-startup-id $HOME/.fehbg
 exec --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 2 && copyq hide &))'
 exec --no-startup-id flameshot
@@ -62,16 +62,15 @@ bindsym $mod+c exec --no-startup-id copyq toggle
 bindsym $mod+asciitilde exec --no-startup-id $TERMINAL --class terminal-normal
 bindsym $mod+Return exec $BROWSER
 bindsym $mod+Escape exec i3lock -c "$(echo "$bg" | tr -d '#')"
-bindsym F10 exec --no-startup-id feh --recursive --bg-fill --randomize $HOME/vault/wallpapers
+bindsym F10 exec --no-startup-id feh --recursive --bg-fill --randomize $WALLPAPER_DIR
 bindsym $mod+Tab workspace back_and_forth
 bindsym F9 exec --no-startup-id gpick -p
+bindcode $mod+62 exec --no-startup-id $EXPLORER
 
 ### features
 # toggling app visibility with scratchpad
 bindsym F12 exec --no-startup-id sh -c 'xdotool search --class terminal-dropdown && i3-msg "[class="terminal-dropdown"] scratchpad show" || $TERMINAL --class terminal-dropdown'
 for_window [class="terminal-dropdown"] floating enable, border none, resize set 1920 938, move position 0 px 0 px, move scratchpad, scratchpad show, focus
-bindcode $mod+51 exec --no-startup-id sh -c 'xdotool search --class explorer-toggle && i3-msg "[class="explorer-toggle"] scratchpad show" || $EXPLORER --class explorer-toggle'
-for_window [class="explorer-toggle"] floating enable, move position center, resize set 900 500, move scratchpad, scratchpad show, focus
 
 ### navigation
 bindsym $mod+h focus left

@@ -10,9 +10,9 @@ adjust_dpi() {
 
   sed -i --follow-symlinks "s|^Xft.dpi:.*|Xft.dpi: $((dpi / 1024))|" "$HOME/.Xresources"
   sed -i --follow-symlinks "s|^Xft/DPI.*|Xft/DPI $dpi|" "$HOME/.xsettingsd"
-  sed -i --follow-symlinks "s|^dpi-x.*|dpi-x = $(($dpi / 1024))|" "$HOME/.config/polybar/config.ini"
-  sed -i --follow-symlinks "s|^dpi-y.*|dpi-y = $(($dpi / 1024))|" "$HOME/.config/polybar/config.ini"
-  sed -i --follow-symlinks "s|^tray-size.*|tray-size = "$tray_size"|" "$HOME/.config/polybar/config.ini"
+  sed -i --follow-symlinks "s|^dpi-x.*|dpi-x = $(($dpi / 1024))|" "$XDG_CONFIG_HOME/polybar/config.ini"
+  sed -i --follow-symlinks "s|^dpi-y.*|dpi-y = $(($dpi / 1024))|" "$XDG_CONFIG_HOME/polybar/config.ini"
+  sed -i --follow-symlinks "s|^tray-size.*|tray-size = "$tray_size"|" "$XDG_CONFIG_HOME/polybar/config.ini"
 }
 
 reload() {

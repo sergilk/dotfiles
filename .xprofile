@@ -10,12 +10,6 @@ export NVM_DIR="$([ -n "${XDG_CONFIG_HOME-}" ] && printf %s "${XDG_CONFIG_HOME}/
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-export EDITOR=nvim
-export BROWSER=brave
-export TERMINAL=alacritty
-export TERM=alacritty
-export EXPLORER=Thunar
-
 export QT_QPA_PLATFORMTHEME=gtk3
 export QT_SCREEN_SCALE_FACTORS=1
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
@@ -23,3 +17,11 @@ export QT_ENABLE_HIGHDPI_SCALING=1
 export GDK_SCALE=1
 export GDK_DPI_SCALE=1
 export GTK_USE_PORTAL=1
+
+export EDITOR=nvim
+export BROWSER=brave
+export TERMINAL=alacritty
+export TERM=alacritty
+export EXPLORER=Thunar
+
+export WALLPAPER_DIR="$HOME/vault/wallpapers"
