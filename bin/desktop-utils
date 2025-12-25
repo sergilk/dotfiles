@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# usage:
+# 1) execute script
+# 2) select the image and press "m"
+# 3) press "q" to quit script
+
+# this WALLPAPER_DIR is an env variable set in .xprofile
+picked_img="$(nsxiv -otb "$WALLPAPER_DIR"/* | tail -n1)"
+
+case "$1" in
+	set_wp)
+    if [ -n "$picked_img" ]; then
+      feh --bg-fill "$picked_img"
+      sleep 1
+      notify-send "Wallpaper successfully applied"
+    else
+      notify-send "No wallpaper selected"
+      exit 1
+    fi
+    ;;
+	set_wp+theme)
+    if [ -n "$picked_img" ]; then
+      feh --bg-fill "$picked_img"
+      wal -i "$picked_img" -o "$XDG_CONFIG_HOME/wal/post-run.sh"
+      sleep 1
+      notify-send "Theme & wallpaper successfully applied"
+    else
+      notify-send "No wallpaper selected"
+      exit 1
+    fi
+    ;;
+	*) exit 0 ;;
+esac
