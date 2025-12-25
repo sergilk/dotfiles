@@ -6,17 +6,17 @@ focus_follows_mouse no
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id gnome-keyring-daemon --start --components=secrets
 exec --no-startup-id xrandr --output HDMI-0 --mode "1920x1080" --rate 144
-exec --no-startup-id xrdb -merge $HOME/.Xresources
+exec --no-startup-id xrdb -merge "$HOME/.Xresources"
 exec --no-startup-id xsettingsd
 exec --no-startup-id nvidia-settings -a "DigitalVibrance=200"
 exec --no-startup-id "$HOME/.fehbg"
-exec --no-startup-id sh -c "ls -d '$XDG_CACHE_HOME/wal' && wal -R -o "$XDG_CONFIG_HOME/wal/post-run.sh"
-exec --no-startup-id $HOME/.fehbg
-exec --no-startup-id sh -c 'pgrep -x copyq >/dev/null || (copyq --start-server & (sleep 2 && copyq hide &))'
+exec --no-startup-id sh -c "ls -d '$XDG_CACHE_HOME/wal' && wal -R -n -o '$XDG_CONFIG_HOME/wal/post-run.sh' || wal -n -i '$HOME/default.png' -o '$XDG_CONFIG_HOME/wal/post-run.sh'"
+exec --no-startup-id dunst
+exec --no-startup-id picom -b
+exec --no-startup-id sh -c "killall polybar; sleep 3; polybar -q"
+
+exec --no-startup-id copyq --start-server
 exec --no-startup-id flameshot
-exec_always --no-startup-id sh -c "killall dunst; dunst"
-exec_always --no-startup-id sh -c "killall polybar; polybar"
-exec_always --no-startup-id sh -c "killall picom; picom -b"
 
 ### focus
 for_window [urgent="latest"] focus
@@ -43,14 +43,14 @@ client.background $bg
 
 ### window management
 assign [window_role="^browser$"] → 1
-assign [class="^Code$"] → 2
+assign [class="^(Code|dev.zed.Zed)$"] → 2
 assign [class="^(discord|TelegramDesktop|Spotify)$"] → 3
 assign [class="^(steam|cs2|factorio|steam_app_.*)$"] → 4
 
 for_window [workspace=3] layout tabbed
 for_window [workspace=4] layout tabbed
 
-for_window [window_role="^(pop-up|dialog|menu|GtkFileChooserDialog)$"] floating enable
+for_window [window_role="^(pop-up|dialog|menu|GtkFileChooserDialog|modal)$"] floating enable
 for_window [title="Preferences"] floating enable
 for_window [class="^(cs2|factorio|steam_app_.*)$"] floating disable
 for_window [class="^(pavucontrol)$"] floating enable
