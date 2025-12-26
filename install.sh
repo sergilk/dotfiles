@@ -1,13 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-platform="$1" # laptop|desktop
-if [[ $platform != "desktop" && $platform != "laptop" ]]; then
-    echo -e "###\nTo continue, pass the correct device platform: (desktop|laptop).\nUsage: script platform\n###"
-    exit 1
-fi
-
-exec > >(tee "$HOME/inst_log.txt") 2>&1
 set -e
+exec > >(tee "$HOME/install@$(date +%Y-%m-%d_%H:%M).log") 2>&1
 
 log() {
     INFO='\e[34m'
@@ -28,25 +22,42 @@ log() {
 }
 
 # catch an error when exiting the script (e.g by clicking ctrl+c)
-trap 'log error "Script canceled"; exit 130' SIGINT
+trap 'log info "Script canceled"; exit 130' SIGINT
+
+if [[ $EUID -eq 0 ]]; then
+    log error "Do not run the sript as root!"
+    exit 1
+fi
+
+if ! type git &>/dev/null; then
+  log error "Install git first!"
+  exit 1
+fi
+
+platform="$1"
+case "$platform" in
+  laptop|desktop) ;;
+  *)
+  log error "Run script with the correct device platform!\nUsage: "$0" (desktop|laptop)\n"
+  exit 1
+  ;;
+esac
 
 dotfiles_dir="$HOME/dotfiles"
-core_packages=("base-devel" "libgnome-keyring" "gnome-keyring" "linux-headers" "libsecret"
-"fuse2" "jq" "wget" "qt5ct" "python-pip" "polkit" "dbus" "xdg-utils" "mesa" "lib32-mesa" "noto-fonts"
-"noto-fonts-emoji" "noto-fonts-extra" "noto-fonts-cjk" "ttf-jetbrains-mono-nerd" "ttf-nerd-fonts-symbols-mono"
-"pipewire" "pipewire-alsa" "pipewire-pulse" "gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad"
-"gst-plugins-ugly" "gst-plugins-base" "unrar" "unzip" "7zip" "tar" "gzip" "zip" "bluez" "bluez-tools"
-"bluez-utils" "xdg-desktop-portal" "xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip")
-i3_packages=("xorg i3-wm i3lock ly")
-user_pacman=("feh" "dmenu" "mpv" "j4-dmenu-desktop" "discord" "polybar" "dunst" "xdotool" "libnotify"
-"copyq" "tmux" "neovim" "alacritty" "wipe" "trash-cli" "yt-dlp" "playerctl" "ffmpeg" "pavucontrol"
-"picom" "thunar" "thunar-archive-plugin" "thunar-media-tags-plugin" "thunar-volman" "tumbler" "ffmpegthumbnailer"
-"gvfs" "udisks2" "polkit-gnome" "glib2" "desktop-file-utils" "webp-pixbuf-loader" "libwebp" "gdk-pixbuf2" "gpick"
-"flameshot" "xarchiver")
-user_aur=("brave-bin" "visual-studio-code-bin" "snapd" "bluetuith" "localsend-bin" "python-pywal16")
+core_packages=("libgnome-keyring" "gnome-keyring" "libsecret" "fuse2" "jq" "wget" "qt5ct" "python-pip" "mesa"
+"lib32-mesa" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra" "noto-fonts-cjk" "ttf-jetbrains-mono-nerd"
+"ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-pulse" "gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad"
+"gst-plugins-ugly" "gst-plugins-base" "unrar" "unzip" "7zip" "zip" "bluez" "bluez-tools" "bluez-utils" "xdg-desktop-portal"
+"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip")
+x_system_packages=("xorg-server xorg-xev xorg-xprop xorg-xauth xorg-xrdb xorg-xinput xorg-xrandr i3-wm i3lock ly")
+user_pacman=("feh" "dmenu" "mpv" "j4-dmenu-desktop" "discord" "polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux"
+"neovim" "alacritty" "wipe" "trash-cli" "yt-dlp" "playerctl" "pavucontrol" "picom" "thunar" "thunar-archive-plugin"
+"thunar-media-tags-plugin" "thunar-volman" "tumbler" "ffmpegthumbnailer" "gvfs" "polkit-gnome" "webp-pixbuf-loader"
+"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed")
+user_aur=("brave-bin" "visual-studio-code-bin" "bluetuith" "localsend-bin" "python-pywal16" "spotify")
 
 laptop_core=("cbatticon" "brightnessctl" "xf86-video-amdgpu" "vulkan-radeon" "lib32-vulkan-radeon" "alsa-utils")
-desktop_core=("nvidia" "nvidia-utils" "nvidia-settings")
+desktop_core=("nvidia" "nvidia-utils" "nvidia-settings" "lib32-nvidia-utils")
 laptop_user_aur=("powerstat")
 if [[ "$platform" == "laptop" ]]; then
     core_packages+=("${laptop_core[@]}")
@@ -65,7 +76,7 @@ setup_pacman() {
 }
 
 update_system() {
-    sudo pacman -Sy
+    sudo pacman -Syy
 
     if ! pacman -Qi pacman-contrib &>/dev/null; then
         log info "Checkupdates utility not found, installing..."
@@ -95,10 +106,7 @@ update_system() {
         log info "Installing yay..."
         [[ -d /tmp/yay-bin ]] && sudo rm -rf /tmp/yay-bin
         cd /tmp
-        (
-        git clone https://aur.archlinux.org/yay-bin.git ||
-        git clone --branch yay-bin --single-branch https://github.com/archlinux/aur.git yay-bin
-        ) || return 1
+        git clone https://aur.archlinux.org/yay-bin.git || return 1
         cd yay-bin
         makepkg -si --noconfirm && log success "Yay installed!" || {
             log error "Failed to install yay, exiting..."
@@ -116,12 +124,12 @@ installing_hook() {
     local inst_cmd check_cmd
     case $repo_type in
       pacman)
-            inst_cmd="sudo pacman -S"
-            check_cmd="pacman -Qi"
+            inst_cmd=(sudo pacman -S --needed --noconfirm)
+            check_cmd=(pacman -Qi)
             ;;
          aur)
-            inst_cmd="yay -S"
-            check_cmd="yay -Qi"
+            inst_cmd=(yay -S --needed --noconfirm --norebuild --noredownload)
+            check_cmd=(yay -Qi)
             ;;
           *)
             log error "Invalid repo type"
@@ -130,9 +138,9 @@ installing_hook() {
     esac
 
     for pkg in "${pkg_list[@]}"; do
-        if ! $check_cmd "$pkg" &>/dev/null; then
+        if ! "${check_cmd[@]}" "$pkg" &>/dev/null; then
             log info "Installing [$pkg]..."
-            if ! $inst_cmd "$pkg" --noconfirm; then
+            if ! "${inst_cmd[@]}" "$pkg"; then
                 log error "Installing [$pkg] canceled or failed"
                 return 1
             fi
@@ -176,14 +184,14 @@ install_user_packages() {
     fi
 }
 
-install_system() {
-    if [[ -n $i3_packages ]]; then
-        log info "Installing i3..."
-        if ! sudo pacman -S --needed $i3_packages --noconfirm; then
-            log error "i3 installation failed or canceled, exiting..."
+install_x_system() {
+    if [[ -n $x_system_packages ]]; then
+        log info "Installing X system..."
+        if ! sudo pacman -S --needed $x_system_packages --noconfirm; then
+            log error "System installation failed or canceled, exiting..."
             return 1
         else
-            log success "i3 packages installed!"
+            log success "System packages installed!"
         fi
         log info "Configuring system..."
         sleep 0.1
@@ -193,13 +201,10 @@ install_system() {
         [[ ! -d "$HOME/Videos" ]] && mkdir -v "$HOME/Videos"
 
         log info "Enabling system services..."
-        sudo systemctl enable ly.service
+        sudo systemctl enable ly@tty2.service
         sudo systemctl disable getty@tty2.service
         systemctl --user enable pipewire pipewire-pulse
         systemctl --user start pipewire pipewire-pulse
-        sudo ln -s -v /var/lib/snapd/snap /snap
-        sudo systemctl enable --now snapd.socket
-        sudo systemctl enable --now snapd.apparmor.service
         sudo systemctl enable bluetooth.service
         sudo systemctl start bluetooth.service
 
@@ -221,7 +226,7 @@ EOF
         Option "XkbOptions" "grp:alt_shift_toggle"
         EndSection
 EOF
-        if [[ "$platfrom" == "laptop" ]]; then
+        if [[ "$platform" == "laptop" ]]; then
         sudo tee /etc/X11/xorg.conf.d/30-touchpad.conf > /dev/null <<EOF
         Section "InputClass"
         Identifier "touchpad"
@@ -277,7 +282,7 @@ exe update_system
 exe install_core_packages
 exe install_pkg_helpers
 exe install_user_packages
-exe install_system
+exe install_x_system
 exe create_symlinks
 
 read -r -p "reboot? (y/n) " input
