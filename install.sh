@@ -3,6 +3,23 @@
 set -e
 exec > >(tee "$HOME/install@$(date +%Y-%m-%d_%H:%M).log") 2>&1
 
+arg="$1"
+dotfiles_dir="$HOME/dotfiles"
+core_packages=("libgnome-keyring" "gnome-keyring" "libsecret" "fuse2" "jq" "wget" "qt5ct" "python-pip" "mesa"
+"lib32-mesa" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra" "noto-fonts-cjk" "ttf-jetbrains-mono-nerd"
+"ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-pulse" "gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad"
+"gst-plugins-ugly" "gst-plugins-base" "unrar" "unzip" "7zip" "zip" "bluez" "bluez-tools" "bluez-utils" "xdg-desktop-portal"
+"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip")
+x_system_packages=("xorg-server xorg-xev xorg-xprop xorg-xauth xorg-xrdb xorg-xinput xorg-xrandr i3-wm i3lock ly")
+user_pacman=("feh" "dmenu" "mpv" "j4-dmenu-desktop" "discord" "polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux"
+"neovim" "alacritty" "wipe" "trash-cli" "yt-dlp" "playerctl" "pavucontrol" "picom" "thunar" "thunar-archive-plugin"
+"thunar-media-tags-plugin" "thunar-volman" "tumbler" "ffmpegthumbnailer" "gvfs" "polkit-gnome" "webp-pixbuf-loader"
+"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed")
+user_aur=("brave-bin" "visual-studio-code-bin" "bluetuith" "localsend-bin" "python-pywal16" "spotify")
+laptop_core=("cbatticon" "brightnessctl" "xf86-video-amdgpu" "vulkan-radeon" "lib32-vulkan-radeon" "alsa-utils")
+desktop_core=("nvidia" "nvidia-utils" "nvidia-settings" "lib32-nvidia-utils")
+laptop_user_aur=("powerstat")
+
 log() {
     INFO='\e[34m'
     SUCCESS='\e[32m'
@@ -34,38 +51,20 @@ if ! type git &>/dev/null; then
   exit 1
 fi
 
-platform="$1"
-case "$platform" in
-  laptop|desktop) ;;
-  *)
-  log error "Run script with the correct device platform!\nUsage: "$0" (desktop|laptop)\n"
+if [[ ! -d "$dotfiles_dir" ]]; then
+  log error "Dotfiles folder not found!"
   exit 1
-  ;;
-esac
-
-dotfiles_dir="$HOME/dotfiles"
-core_packages=("libgnome-keyring" "gnome-keyring" "libsecret" "fuse2" "jq" "wget" "qt5ct" "python-pip" "mesa"
-"lib32-mesa" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra" "noto-fonts-cjk" "ttf-jetbrains-mono-nerd"
-"ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-pulse" "gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad"
-"gst-plugins-ugly" "gst-plugins-base" "unrar" "unzip" "7zip" "zip" "bluez" "bluez-tools" "bluez-utils" "xdg-desktop-portal"
-"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip")
-x_system_packages=("xorg-server xorg-xev xorg-xprop xorg-xauth xorg-xrdb xorg-xinput xorg-xrandr i3-wm i3lock ly")
-user_pacman=("feh" "dmenu" "mpv" "j4-dmenu-desktop" "discord" "polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux"
-"neovim" "alacritty" "wipe" "trash-cli" "yt-dlp" "playerctl" "pavucontrol" "picom" "thunar" "thunar-archive-plugin"
-"thunar-media-tags-plugin" "thunar-volman" "tumbler" "ffmpegthumbnailer" "gvfs" "polkit-gnome" "webp-pixbuf-loader"
-"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed")
-user_aur=("brave-bin" "visual-studio-code-bin" "bluetuith" "localsend-bin" "python-pywal16" "spotify")
-
-laptop_core=("cbatticon" "brightnessctl" "xf86-video-amdgpu" "vulkan-radeon" "lib32-vulkan-radeon" "alsa-utils")
-desktop_core=("nvidia" "nvidia-utils" "nvidia-settings" "lib32-nvidia-utils")
-laptop_user_aur=("powerstat")
-if [[ "$platform" == "laptop" ]]; then
-    core_packages+=("${laptop_core[@]}")
-    user_aur+=("${laptop_user_aur[@]}")
 fi
-if [[ "$platform" == "desktop" ]]; then
-    core_packages+=("${desktop_core[@]}")
-fi
+
+exe() {
+  local fn_name="$1"
+    if $fn_name; then
+      log success "$fn_name ok"
+    else
+      log error "$fn_name error"
+      exit 1
+    fi
+}
 
 setup_pacman() {
   log info "Configuring pacman.conf..."
@@ -267,23 +266,60 @@ create_symlinks() {
   done
 }
 
-exe() {
-    local fn_name="$1"
+post_install() {
+  log info "Perform post installation steps..."
 
-    if $fn_name; then
-        log success "$fn_name ok"
-    else
-        log error "$fn_name error"
-        exit 1
-    fi
+  # install nvim plugin manager
+  sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  nvim -c PlugInstall
+
+  # install nvm
+  ! command -v nvm >/dev/null && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+  sed -i '/export NVM_DIR/,/bash_completion/d' "$HOME/.bashrc"
+  [[ -f "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+  nvm install --lts
+
+  # adjust nvim.desktop to open text files from gui via alacritty+neovim
+  sudo sed -i "s|^Exec=nvim %F|Exec=alacritty -e nvim %F|" /usr/share/applications/nvim.desktop
+  sudo sed -i "s|^Terminal=true|Terminal=false|" /usr/share/applications/nvim.desktop
 }
-exe setup_pacman
-exe update_system
-exe install_core_packages
-exe install_pkg_helpers
-exe install_user_packages
-exe install_x_system
-exe create_symlinks
 
-read -r -p "reboot? (y/n) " input
-[[ $input = "y" ]] && reboot || echo ":("
+main() {
+  exe setup_pacman
+  exe update_system
+  exe install_core_packages
+  exe install_pkg_helpers
+  exe install_user_packages
+  exe install_x_system
+  exe create_symlinks
+
+  read -r -p "reboot? (y/n) " input
+  [[ $input = "y" ]] && reboot || echo ":("
+}
+
+case "$arg" in
+  laptop|desktop)
+    platform="$arg"
+    [[ "$platform" == "laptop" ]] && core_packages+=("${laptop_core[@]}") && user_aur+=("${laptop_user_aur[@]}")
+    [[ "$platform" == "desktop" ]] && core_packages+=("${desktop_core[@]}")
+    ;;
+  update_system|create_symlinks|post_install)
+    exe "$arg"
+    exit 0
+    ;;
+  *)
+    log error "Missed argument!
+    1) For normal installation, pass the correct device platform!
+      # Usage: $0 (desktop|laptop)
+    2) To execute a specific function, pass as argument next entry:
+      - update_system
+      - create_symlinks
+      - post_install
+      # Usage: $0 entry above"
+    exit 1
+    ;;
+esac
+
+# entrypoint
+main
