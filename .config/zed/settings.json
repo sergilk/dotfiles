@@ -1,0 +1,56 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "ui_font_weight": 400.0,
+  "buffer_line_height": {
+    "custom": 1.8,
+  },
+  "agent_buffer_font_size": 14.0,
+  "format_on_save": "on",
+  "diagnostics": null,
+  "colorize_brackets": true,
+  "buffer_font_size": 15.0,
+  "collaboration_panel": {
+    "dock": "right",
+    "button": false,
+  },
+  "outline_panel": {
+    "dock": "right",
+    "button": false,
+  },
+  "git_panel": {
+    "dock": "left",
+  },
+  "tabs": {
+    "git_status": true,
+    "file_icons": true,
+  },
+  "ui_font_family": "Noto Sans",
+  "disable_ai": true,
+  "project_panel": {
+    "dock": "right",
+    "default_width": 240.0,
+  },
+  "tab_size": 2,
+  "hide_mouse": "never",
+  "buffer_font_weight": 700.0,
+  "buffer_font_family": "JetBrainsMono Nerd Font Mono",
+  "auto_update": false,
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  "icon_theme": "VSCode Great Icons Theme",
+  "ui_font_size": 17.0,
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "VSCode Dark Modern",
+  },
+}
