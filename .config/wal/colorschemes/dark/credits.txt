@@ -1,0 +1,3 @@
+# https://github.com/vyrx-dev/dotfiles/tree/main/themes
+extra_gruvbox-material,
+extra_zen
