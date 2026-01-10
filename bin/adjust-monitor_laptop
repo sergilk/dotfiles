@@ -18,7 +18,12 @@ adjust_dpi() {
 reload() {
     killall -HUP xsettingsd
     xrdb -merge "$HOME/.Xresources"
-    pgrep -f "polybar" && (killall polybar && polybar -q)
+    i3-msg restart
+
+    # at the end
+    i3-msg reload
+    killall polybar && polybar -q
+    killall dunst && dunst
 }
 
 if [[ $connectedMonitors -le 1 ]]; then

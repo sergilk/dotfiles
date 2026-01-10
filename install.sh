@@ -9,13 +9,13 @@ core_packages=("libgnome-keyring" "gnome-keyring" "libsecret" "fuse2" "jq" "wget
 "lib32-mesa" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra" "noto-fonts-cjk" "ttf-jetbrains-mono-nerd"
 "ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-pulse" "gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad"
 "gst-plugins-ugly" "gst-plugins-base" "unrar" "unzip" "7zip" "zip" "bluez" "bluez-tools" "bluez-utils" "xdg-desktop-portal"
-"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip")
+"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip" "less")
 x_system_packages=("xorg-server xorg-xev xorg-xprop xorg-xauth xorg-xrdb xorg-xinput xorg-xrandr i3-wm i3lock ly")
 user_pacman=("feh" "dmenu" "mpv" "j4-dmenu-desktop" "discord" "polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux"
 "neovim" "alacritty" "wipe" "trash-cli" "yt-dlp" "playerctl" "pavucontrol" "picom" "thunar" "thunar-archive-plugin"
 "thunar-media-tags-plugin" "thunar-volman" "tumbler" "ffmpegthumbnailer" "gvfs" "polkit-gnome" "webp-pixbuf-loader"
-"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed")
-user_aur=("brave-bin" "visual-studio-code-bin" "bluetuith" "localsend-bin" "python-pywal16" "spotify")
+"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed" "obsidian" "github-cli")
+user_aur=("brave-bin" "visual-studio-code-bin" "bluetuith" "localsend-bin" "python-pywal16" "spotify" "anki-bin")
 laptop_core=("cbatticon" "brightnessctl" "xf86-video-amdgpu" "vulkan-radeon" "lib32-vulkan-radeon" "alsa-utils")
 desktop_core=("nvidia" "nvidia-utils" "nvidia-settings" "lib32-nvidia-utils")
 laptop_user_aur=("powerstat")
