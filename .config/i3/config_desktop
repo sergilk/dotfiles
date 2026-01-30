@@ -13,8 +13,7 @@ exec --no-startup-id "$HOME/.fehbg"
 exec --no-startup-id sh -c "ls -d '$XDG_CACHE_HOME/wal' && wal -R -n -o '$XDG_CONFIG_HOME/wal/post-run.sh' || wal -n -i '$HOME/default.png' -o '$XDG_CONFIG_HOME/wal/post-run.sh'"
 exec --no-startup-id dunst
 exec --no-startup-id picom -b
-exec --no-startup-id sh -c "sleep 3; polybar -q"
-
+exec --no-startup-id sleep 5 && $XDG_CONFIG_HOME/polybar/launch.sh
 exec --no-startup-id copyq --start-server
 exec --no-startup-id flameshot
 

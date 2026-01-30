@@ -22,7 +22,7 @@ reload() {
 
     # at the end
     i3-msg reload
-    killall polybar && polybar -q
+    $XDG_CONFIG_HOME/polybar/launch.sh
     killall dunst && dunst
 }
 
