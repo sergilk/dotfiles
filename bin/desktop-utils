@@ -9,7 +9,7 @@
 picked_img="$(nsxiv -otb "$WALLPAPER_DIR"/* | tail -n1)"
 
 case "$1" in
-	set_wp)
+	pick_wp)
     if [ -n "$picked_img" ]; then
       feh --bg-fill "$picked_img"
       sleep 1 && notify-send "Wallpaper successfully applied"
@@ -18,7 +18,7 @@ case "$1" in
       exit 1
     fi
     ;;
-	set_wp+theme)
+	pick_wp+theme)
     if [ -n "$picked_img" ]; then
       feh --bg-fill "$picked_img"
       wal -n -i "$picked_img" -o "$XDG_CONFIG_HOME/wal/post-run.sh"

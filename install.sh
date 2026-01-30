@@ -5,16 +5,16 @@ exec > >(tee "$HOME/install@$(date +%Y-%m-%d_%H:%M).log") 2>&1
 
 arg="$1"
 dotfiles_dir="$HOME/dotfiles"
-core_packages=("libgnome-keyring" "gnome-keyring" "libsecret" "fuse2" "jq" "wget" "qt5ct" "python-pip" "mesa"
+core_packages=("base-devel" "gnome-keyring" "libsecret" "fuse2" "jq" "wget" "qt5ct" "python-pip" "mesa"
 "lib32-mesa" "noto-fonts" "noto-fonts-emoji" "noto-fonts-extra" "noto-fonts-cjk" "ttf-jetbrains-mono-nerd"
 "ttf-nerd-fonts-symbols-mono" "pipewire" "pipewire-pulse" "gstreamer" "gst-libav" "gst-plugins-good" "gst-plugins-bad"
 "gst-plugins-ugly" "gst-plugins-base" "unrar" "unzip" "7zip" "zip" "bluez" "bluez-tools" "bluez-utils" "xdg-desktop-portal"
-"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip" "less")
+"xdg-desktop-portal-gtk" "xsettingsd" "adw-gtk-theme" "xclip" "less" "make" "cmake" "ninja" "meson")
 x_system_packages=("xorg-server xorg-xev xorg-xprop xorg-xauth xorg-xrdb xorg-xinput xorg-xrandr i3-wm i3lock ly")
 user_pacman=("feh" "dmenu" "mpv" "j4-dmenu-desktop" "discord" "polybar" "dunst" "xdotool" "libnotify" "copyq" "tmux"
 "neovim" "alacritty" "wipe" "trash-cli" "yt-dlp" "playerctl" "pavucontrol" "picom" "thunar" "thunar-archive-plugin"
 "thunar-media-tags-plugin" "thunar-volman" "tumbler" "ffmpegthumbnailer" "gvfs" "polkit-gnome" "webp-pixbuf-loader"
-"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed" "obsidian" "github-cli")
+"gpick" "flameshot" "xarchiver" "nsxiv" "telegram-desktop" "btop" "zed" "obsidian" "github-cli" "tree" "network-manager-applet" "blueman")
 user_aur=("brave-bin" "visual-studio-code-bin" "bluetuith" "localsend-bin" "python-pywal16" "spotify" "anki-bin")
 laptop_core=("cbatticon" "brightnessctl" "xf86-video-amdgpu" "vulkan-radeon" "lib32-vulkan-radeon" "alsa-utils")
 desktop_core=("nvidia" "nvidia-utils" "nvidia-settings" "lib32-nvidia-utils")
@@ -283,6 +283,13 @@ post_install() {
   # adjust nvim.desktop to open text files from gui via alacritty+neovim
   sudo sed -i "s|^Exec=nvim %F|Exec=alacritty -e nvim %F|" /usr/share/applications/nvim.desktop
   sudo sed -i "s|^Terminal=true|Terminal=false|" /usr/share/applications/nvim.desktop
+
+  # tmux flow
+  cd "$XDG_CONFIG_HOME/tmux"
+  [[ ! -d "tmux-resurrect/.git" ]] && rm -rf tmux-resurrect && git clone https://github.com/tmux-plugins/tmux-resurrect
+  cd tmux-resurrect && git pull
+  sed -i --follow-symlinks '$a\ \n# plugin to save/restore sessions\nrun-shell ~/.config/tmux/tmux-resurrect/resurrect.tmux' "$XDG_CONFIG_HOME/tmux/tmux.conf"
+  pgrep tmux && tmux source-file "$XDG_CONFIG_HOME/tmux/tmux.conf"
 }
 
 main() {

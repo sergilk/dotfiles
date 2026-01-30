@@ -10,12 +10,14 @@ exec --no-startup-id xrdb -merge "$HOME/.Xresources"
 exec --no-startup-id xsettingsd
 exec --no-startup-id nvidia-settings -a "DigitalVibrance=200"
 exec --no-startup-id "$HOME/.fehbg"
-exec --no-startup-id sh -c "ls -d '$XDG_CACHE_HOME/wal' && wal -R -n -o '$XDG_CONFIG_HOME/wal/post-run.sh' || wal -n -i '$HOME/default.png' -o '$XDG_CONFIG_HOME/wal/post-run.sh'"
+exec --no-startup-id sh -c 'test -d "$XDG_CACHE_HOME/wal" && wal -Rnq -o "$XDG_CONFIG_HOME/wal/post-run.sh" || wal -nq --theme extra_zen -o "$XDG_CONFIG_HOME/wal/post-run.sh"'
+
 exec --no-startup-id dunst
 exec --no-startup-id picom -b
 exec --no-startup-id sleep 5 && $XDG_CONFIG_HOME/polybar/launch.sh
 exec --no-startup-id copyq --start-server
 exec --no-startup-id flameshot
+exec --no-startup-id blueman-applet
 
 ### focus
 for_window [urgent="latest"] focus
@@ -62,8 +64,8 @@ bindsym $mod+c exec --no-startup-id copyq toggle
 bindsym $mod+asciitilde exec --no-startup-id $TERMINAL --class terminal-normal
 bindsym $mod+Return exec $BROWSER
 bindsym $mod+Escape exec i3lock -c "$(echo "$bg" | tr -d '#')"
-bindsym F10 exec --no-startup-id desktop-utils set_wp
-bindsym $mod+F10 exec --no-startup-id desktop-utils set_wp+theme
+bindsym F10 exec --no-startup-id "$(desktop-utils pick_wp)"
+bindsym $mod+F10 exec --no-startup-id "$(desktop-utils pick_wp+theme)"
 bindsym $mod+Tab workspace back_and_forth
 bindsym F9 exec --no-startup-id gpick -p
 bindcode $mod+62 exec --no-startup-id $EXPLORER
